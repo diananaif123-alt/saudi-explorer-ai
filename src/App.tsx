@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { HeroSection } from './components/HeroSection';
+import { NavigationSidebar } from './components/NavigationSidebar';
+import { ServicesLandingGrid } from './components/ServicesLandingGrid';
+import { AuthRoleModal } from './components/AuthRoleModal';
 import { PrdViewer } from './components/PrdViewer';
 import { ArchitectureViewer } from './components/ArchitectureViewer';
 import { BrandIdentityViewer } from './components/BrandIdentityViewer';
@@ -33,13 +36,18 @@ import {
   Building2, 
   Bot, 
   ArrowUp,
-  Heart
+  Heart,
+  Menu,
+  Layers,
+  ArrowRight
 } from 'lucide-react';
 
 export default function App() {
   const [activeNav, setActiveNav] = useState('home');
   const [currentActiveRole, setCurrentActiveRole] = useState('Tourist');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedCityForAi, setSelectedCityForAi] = useState('العلا');
   const [bookingItem, setBookingItem] = useState<{
     title: string;
@@ -53,169 +61,25 @@ export default function App() {
     setIsAiModalOpen(true);
   };
 
-  const handleScrollToPrd = () => {
-    setActiveNav('prd');
-    const elem = document.getElementById('prd-document-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleSelectNavKey = (navKey: string) => {
+    setActiveNav(navKey);
+    window.scrollTo({ top: 350, behavior: 'smooth' });
   };
 
-  const handleScrollToArchitecture = () => {
-    setActiveNav('architecture');
-    const elem = document.getElementById('architecture-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const handleLoginRoleSuccess = (roleNavKey: string, roleTitle: string) => {
+    if (roleNavKey === 'tourist') setCurrentActiveRole('Tourist');
+    else if (roleNavKey === 'investor') setCurrentActiveRole('Investor');
+    else if (roleNavKey === 'business') setCurrentActiveRole('Merchant');
+    else if (roleNavKey === 'guide') setCurrentActiveRole('TourGuide');
+    else if (roleNavKey === 'ministry') setCurrentActiveRole('MinistryAdmin');
+    else if (roleNavKey === 'superadmin') setCurrentActiveRole('SuperAdmin');
 
-  const handleScrollToBrand = () => {
-    setActiveNav('brand');
-    const elem = document.getElementById('brand-identity-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToUx = () => {
-    setActiveNav('ux');
-    const elem = document.getElementById('ux-design-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToAuth = () => {
-    setActiveNav('auth');
-    const elem = document.getElementById('auth-system-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToTourist = () => {
-    setActiveNav('tourist');
-    const elem = document.getElementById('tourist-portal-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToAi = () => {
-    setActiveNav('ai');
-    const elem = document.getElementById('ai-services-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToMaps = () => {
-    setActiveNav('maps');
-    const elem = document.getElementById('ai-services-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToBooking = () => {
-    setActiveNav('booking');
-    const elem = document.getElementById('booking-services-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToWallet = () => {
-    setActiveNav('wallet');
-    const elem = document.getElementById('phase10-wallet-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToInvestor = () => {
-    setActiveNav('investor');
-    const elem = document.getElementById('phase11-investor-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToBusiness = () => {
-    setActiveNav('business');
-    const elem = document.getElementById('phase12-business-portal-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToGuide = () => {
-    setActiveNav('guide');
-    const elem = document.getElementById('phase13-tour-guide-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToMinistry = () => {
-    setActiveNav('ministry');
-    const elem = document.getElementById('phase14-ministry-dashboard-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToSuperAdmin = () => {
-    setActiveNav('superadmin');
-    const elem = document.getElementById('phase15-super-admin-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToDemo = () => {
-    setActiveNav('demo');
-    const elem = document.getElementById('phase16-demo-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToPhase17 = () => {
-    setActiveNav('phase17');
-    const elem = document.getElementById('phase17-advanced-ai-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleScrollToPhase18 = () => {
-    setActiveNav('phase18');
-    const elem = document.getElementById('phase18-digital-twin-section');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth' });
-    }
+    setActiveNav(roleNavKey);
+    window.scrollTo({ top: 350, behavior: 'smooth' });
   };
 
   const handleNavigatePhaseKey = (phaseKey: string) => {
-    if (phaseKey === 'prd') handleScrollToPrd();
-    else if (phaseKey === 'architecture') handleScrollToArchitecture();
-    else if (phaseKey === 'brand') handleScrollToBrand();
-    else if (phaseKey === 'ux') handleScrollToUx();
-    else if (phaseKey === 'auth') handleScrollToAuth();
-    else if (phaseKey === 'tourist') handleScrollToTourist();
-    else if (phaseKey === 'ai') handleScrollToAi();
-    else if (phaseKey === 'maps') handleScrollToMaps();
-    else if (phaseKey === 'booking') handleScrollToBooking();
-    else if (phaseKey === 'wallet') handleScrollToWallet();
-    else if (phaseKey === 'investor') handleScrollToInvestor();
-    else if (phaseKey === 'business') handleScrollToBusiness();
-    else if (phaseKey === 'guide') handleScrollToGuide();
-    else if (phaseKey === 'ministry') handleScrollToMinistry();
-    else if (phaseKey === 'superadmin') handleScrollToSuperAdmin();
-    else if (phaseKey === 'demo') handleScrollToDemo();
-    else if (phaseKey === 'phase17') handleScrollToPhase17();
-    else if (phaseKey === 'phase18') handleScrollToPhase18();
+    handleSelectNavKey(phaseKey);
   };
 
   return (
@@ -227,131 +91,296 @@ export default function App() {
         <span>هذا نموذج أولي (MVP) لأغراض العرض والتقييم. جميع البيانات والخدمات المعروضة تجريبية وغير مرتبطة بأنظمة تشغيل حقيقية.</span>
       </div>
 
+      {/* Navigation Sidebar Drawer */}
+      <NavigationSidebar 
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        activeNav={activeNav}
+        onSelectNav={(key) => handleSelectNavKey(key)}
+        currentActiveRole={currentActiveRole}
+        onChangeRole={(role) => setCurrentActiveRole(role)}
+      />
+
+      {/* Auth Category Role Selection Modal */}
+      <AuthRoleModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={handleLoginRoleSuccess}
+      />
+
       {/* Hero Section with reference screenshot aesthetics */}
       <HeroSection 
         onSearchClick={() => handleOpenAiPlanner('العلا والرياض')}
-        onNavigateToPrd={handleScrollToPrd}
+        onNavigateToPrd={() => handleSelectNavKey('prd')}
         activeNav={activeNav}
-        setActiveNav={(nav) => {
-          setActiveNav(nav);
-          if (nav === 'planner') {
-            handleOpenAiPlanner();
-          } else if (nav === 'prd') {
-            handleScrollToPrd();
-          } else if (nav === 'architecture') {
-            handleScrollToArchitecture();
-          } else if (nav === 'brand') {
-            handleScrollToBrand();
-          } else if (nav === 'ux') {
-            handleScrollToUx();
-          } else if (nav === 'auth') {
-            handleScrollToAuth();
-          } else if (nav === 'tourist') {
-            handleScrollToTourist();
-          } else if (nav === 'ai') {
-            handleScrollToAi();
-          } else if (nav === 'maps') {
-            handleScrollToMaps();
-          } else if (nav === 'booking') {
-            handleScrollToBooking();
-          } else if (nav === 'wallet') {
-            handleScrollToWallet();
-          } else if (nav === 'investor') {
-            handleScrollToInvestor();
-          } else if (nav === 'business') {
-            handleScrollToBusiness();
-          } else if (nav === 'guide') {
-            handleScrollToGuide();
-          } else if (nav === 'ministry') {
-            handleScrollToMinistry();
-          } else if (nav === 'superadmin') {
-            handleScrollToSuperAdmin();
-          } else if (nav === 'demo') {
-            handleScrollToDemo();
-          } else if (nav === 'phase17') {
-            handleScrollToPhase17();
-          } else if (nav === 'phase18') {
-            handleScrollToPhase18();
-          }
-        }}
+        setActiveNav={(nav) => handleSelectNavKey(nav)}
+        onOpenSidebar={() => setIsSidebarOpen(true)}
+        onOpenLoginModal={() => setIsAuthModalOpen(true)}
       />
 
-      {/* Main Feature Sections based on Navigation State */}
-      <main className="space-y-4">
+      {/* Sticky Category Page Filter Bar */}
+      <div className="sticky top-16 z-40 bg-white/95 backdrop-blur-md border-y border-emerald-900/10 py-3 px-4 shadow-sm">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+          
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="px-3 py-1.5 rounded-full bg-emerald-100 text-[#047857] hover:bg-emerald-200 border border-emerald-300 font-black text-xs flex items-center gap-1.5"
+            >
+              <Menu className="w-3.5 h-3.5 text-amber-600" />
+              <span>القائمة الجانبية</span>
+            </button>
+            <span className="text-slate-300 font-light">|</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-xs font-extrabold shrink-0">
+            <button
+              onClick={() => handleSelectNavKey('home')}
+              className={`px-3.5 py-1.5 rounded-full border transition-all ${
+                activeNav === 'home' 
+                  ? 'bg-[#047857] text-white border-emerald-600 shadow-sm' 
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50'
+              }`}
+            >
+              الرئيسية
+            </button>
+
+            <button
+              onClick={() => handleSelectNavKey('all')}
+              className={`px-3.5 py-1.5 rounded-full border transition-all ${
+                activeNav === 'all' 
+                  ? 'bg-[#047857] text-white border-emerald-600 shadow-sm' 
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50'
+              }`}
+            >
+              جميع اللوحات
+            </button>
+
+            <button
+              onClick={() => handleSelectNavKey('ai')}
+              className={`px-3.5 py-1.5 rounded-full border transition-all ${
+                activeNav === 'ai' 
+                  ? 'bg-[#047857] text-white border-emerald-600 shadow-sm' 
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50'
+              }`}
+            >
+              الذكاء الاصطناعي
+            </button>
+
+            <button
+              onClick={() => handleSelectNavKey('phase17')}
+              className={`px-3.5 py-1.5 rounded-full border transition-all ${
+                activeNav === 'phase17' 
+                  ? 'bg-[#047857] text-white border-emerald-600 shadow-sm' 
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50'
+              }`}
+            >
+              الصوت والواقع المعزز
+            </button>
+
+            <button
+              onClick={() => handleSelectNavKey('phase18')}
+              className={`px-3.5 py-1.5 rounded-full border transition-all ${
+                activeNav === 'phase18' 
+                  ? 'bg-[#047857] text-white border-emerald-600 shadow-sm' 
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50'
+              }`}
+            >
+              التوأم الرقمي
+            </button>
+
+            <button
+              onClick={() => handleSelectNavKey('investor')}
+              className={`px-3.5 py-1.5 rounded-full border transition-all ${
+                activeNav === 'investor' 
+                  ? 'bg-[#047857] text-white border-emerald-600 shadow-sm' 
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50'
+              }`}
+            >
+              بوابة المستثمر
+            </button>
+
+            <button
+              onClick={() => handleSelectNavKey('ministry')}
+              className={`px-3.5 py-1.5 rounded-full border transition-all ${
+                activeNav === 'ministry' 
+                  ? 'bg-[#047857] text-white border-emerald-600 shadow-sm' 
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50'
+              }`}
+            >
+              وزارة السياحة
+            </button>
+
+            <button
+              onClick={() => handleSelectNavKey('prd')}
+              className={`px-3.5 py-1.5 rounded-full border transition-all ${
+                activeNav === 'prd' 
+                  ? 'bg-[#047857] text-white border-emerald-600 shadow-sm' 
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-emerald-50'
+              }`}
+            >
+              وثيقة PRD
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Navigation Return Banner when in specific view */}
+      {activeNav !== 'home' && activeNav !== 'all' && (
+        <div className="max-w-7xl mx-auto px-4 pt-6">
+          <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+              <span className="text-xs font-black">أنت تتصفح الآن قسم: {activeNav.toUpperCase()}</span>
+            </div>
+            <button
+              onClick={() => handleSelectNavKey('home')}
+              className="px-4 py-1.5 rounded-xl bg-white text-slate-900 border border-amber-300 hover:bg-amber-100 font-extrabold text-xs flex items-center gap-1.5 shadow-sm"
+            >
+              <ArrowRight className="w-4 h-4 text-[#047857]" />
+              <span>العودة للصفحة الرئيسية</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content Pages Render Logic */}
+      <main className="space-y-6 pt-4">
         
-        {/* Phase 18 Digital Twin, Predictive AI & National Tourism Operations Center */}
-        <div id="phase18-digital-twin-section">
-          <DigitalTwinOpsCenterViewer />
-        </div>
+        {/* Landing Page Mode (Default View) */}
+        {activeNav === 'home' && (
+          <div className="space-y-12">
+            {/* Services Showcase Cards Grid */}
+            <ServicesLandingGrid 
+              onSelectNav={(key) => handleSelectNavKey(key)}
+              onOpenAiPlanner={handleOpenAiPlanner}
+            />
 
-        {/* Phase 17 Advanced AI, Voice Assistant, 3D Guide Avatar & Immersive AR Experience */}
-        <div id="phase17-advanced-ai-section">
-          <AdvancedAiVoiceArViewer />
-        </div>
+            {/* Destinations Grid */}
+            <DestinationsGrid 
+              onPlanDestination={(destName) => handleOpenAiPlanner(destName)}
+            />
 
-        {/* Phase 16 Production Ready Showcase, Demo Mode Banner & RBAC Role Simulator */}
-        <div id="phase16-demo-section">
-          <ProductionReadyDemoViewer
-            onNavigatePhase={handleNavigatePhaseKey}
-            currentActiveRole={currentActiveRole}
-            onChangeRole={(role) => setCurrentActiveRole(role)}
-          />
-        </div>
+            {/* Events & Luxury Hotels */}
+            <EventsAndHotels 
+              onBookItem={(item) => setBookingItem(item)}
+            />
+          </div>
+        )}
 
-        {/* Phase 15 Super Admin Dashboard, Platform Management & System Administration */}
-        <SuperAdminDashboardViewer />
+        {/* Individual Views or All-Views mode */}
+        {(activeNav === 'phase18' || activeNav === 'all') && (
+          <div id="phase18-digital-twin-section">
+            <DigitalTwinOpsCenterViewer />
+          </div>
+        )}
 
-        {/* Phase 14 Ministry of Tourism Dashboard & National Tourism Intelligence Center */}
-        <MinistryTourismDashboardViewer />
+        {(activeNav === 'phase17' || activeNav === 'all') && (
+          <div id="phase17-advanced-ai-section">
+            <AdvancedAiVoiceArViewer />
+          </div>
+        )}
 
-        {/* Phase 13 Tour Guide Portal & Guided Experience Management */}
-        <TourGuidePortalViewer />
+        {(activeNav === 'demo' || activeNav === 'all') && (
+          <div id="phase16-demo-section">
+            <ProductionReadyDemoViewer
+              onNavigatePhase={handleNavigatePhaseKey}
+              currentActiveRole={currentActiveRole}
+              onChangeRole={(role) => setCurrentActiveRole(role)}
+            />
+          </div>
+        )}
 
-        {/* Phase 12 Tourism Business Portal & Business Management System */}
-        <TourismBusinessPortalViewer />
+        {(activeNav === 'superadmin' || activeNav === 'all') && (
+          <div id="phase15-super-admin-section">
+            <SuperAdminDashboardViewer />
+          </div>
+        )}
 
-        {/* Phase 11 Investor Portal & Investment Intelligence Dashboard */}
-        <InvestorPortalViewer />
+        {(activeNav === 'ministry' || activeNav === 'all') && (
+          <div id="phase14-ministry-dashboard-section">
+            <MinistryTourismDashboardViewer />
+          </div>
+        )}
 
-        {/* Phase 10 Digital Wallet, Tourist Passport & Rewards System */}
-        <WalletPassportRewardsViewer />
+        {(activeNav === 'guide' || activeNav === 'all') && (
+          <div id="phase13-tour-guide-section">
+            <TourGuidePortalViewer />
+          </div>
+        )}
 
-        {/* Phase 9 Tourism Services & Smart Booking System */}
-        <BookingSystemViewer />
+        {(activeNav === 'business' || activeNav === 'all') && (
+          <div id="phase12-business-portal-section">
+            <TourismBusinessPortalViewer />
+          </div>
+        )}
 
-        {/* Phase 8 Smart Maps, Navigation & Augmented Reality (AR) */}
-        <SmartMapsViewer />
+        {(activeNav === 'investor' || activeNav === 'all') && (
+          <div id="phase11-investor-section">
+            <InvestorPortalViewer />
+          </div>
+        )}
 
-        {/* Phase 7 AI Concierge, Smart Trip Planner & Recommendations */}
-        <AiConciergeViewer />
+        {(activeNav === 'wallet' || activeNav === 'all') && (
+          <div id="phase10-wallet-section">
+            <WalletPassportRewardsViewer />
+          </div>
+        )}
 
-        {/* Phase 6 Tourist Portal & Smart Travel Experience */}
-        <TouristPortalViewer />
+        {(activeNav === 'booking' || activeNav === 'all') && (
+          <div id="booking-services-section">
+            <BookingSystemViewer />
+          </div>
+        )}
 
-        {/* Destinations Grid */}
-        <DestinationsGrid 
-          onPlanDestination={(destName) => handleOpenAiPlanner(destName)}
-        />
+        {(activeNav === 'maps' || activeNav === 'all') && (
+          <div id="smart-maps-section">
+            <SmartMapsViewer />
+          </div>
+        )}
 
-        {/* Events & Luxury Hotels */}
-        <EventsAndHotels 
-          onBookItem={(item) => setBookingItem(item)}
-        />
+        {(activeNav === 'ai' || activeNav === 'all') && (
+          <div id="ai-services-section">
+            <AiConciergeViewer />
+          </div>
+        )}
 
-        {/* Phase 5 Authentication & RBAC Viewer */}
-        <AuthSystemViewer />
+        {(activeNav === 'tourist' || activeNav === 'all') && (
+          <div id="tourist-portal-section">
+            <TouristPortalViewer />
+          </div>
+        )}
 
-        {/* Phase 4 UX & Wireframes Design Viewer */}
-        <UxDesignViewer />
+        {(activeNav === 'auth' || activeNav === 'all') && (
+          <div id="auth-system-section">
+            <AuthSystemViewer />
+          </div>
+        )}
 
-        {/* Phase 3 Brand Identity & Visual Design Viewer */}
-        <BrandIdentityViewer />
+        {(activeNav === 'ux' || activeNav === 'all') && (
+          <div id="ux-design-section">
+            <UxDesignViewer />
+          </div>
+        )}
 
-        {/* Phase 2 Architecture Viewer */}
-        <ArchitectureViewer />
+        {(activeNav === 'brand' || activeNav === 'all') && (
+          <div id="brand-identity-section">
+            <BrandIdentityViewer />
+          </div>
+        )}
 
-        {/* PRD Document Viewer Section (Phase 1 Requirement) */}
-        <PrdViewer />
+        {(activeNav === 'architecture' || activeNav === 'all') && (
+          <div id="architecture-section">
+            <ArchitectureViewer />
+          </div>
+        )}
+
+        {(activeNav === 'prd' || activeNav === 'all') && (
+          <div id="prd-document-section">
+            <PrdViewer />
+          </div>
+        )}
 
       </main>
 
@@ -369,7 +398,7 @@ export default function App() {
       />
 
       {/* Official Saudi Tourism Platform Footer */}
-      <footer className="bg-[#022c22] text-white border-t border-emerald-500/20 pt-16 pb-12 px-4 sm:px-8 text-right font-sans">
+      <footer className="bg-[#022c22] text-white border-t border-emerald-500/20 pt-16 pb-12 px-4 sm:px-8 text-right font-sans mt-20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-emerald-800/60">
           
           {/* Brand Info */}
@@ -410,11 +439,11 @@ export default function App() {
           <div className="md:col-span-2 space-y-3">
             <h4 className="text-sm font-black text-amber-300">خدمات الذكاء</h4>
             <ul className="space-y-2 text-xs text-emerald-100 font-medium">
-              <li><button onClick={handleScrollToPhase17} className="hover:text-amber-300 transition-colors">المساعد الصوتي Voice AI</button></li>
-              <li><button onClick={handleScrollToPhase18} className="hover:text-amber-300 transition-colors">التوأم الرقمي Digital Twin</button></li>
-              <li><button onClick={handleScrollToPhase17} className="hover:text-amber-300 transition-colors">المرشد الصوتي 3D Avatar</button></li>
+              <li><button onClick={() => handleSelectNavKey('phase17')} className="hover:text-amber-300 transition-colors">المساعد الصوتي Voice AI</button></li>
+              <li><button onClick={() => handleSelectNavKey('phase18')} className="hover:text-amber-300 transition-colors">التوأم الرقمي Digital Twin</button></li>
+              <li><button onClick={() => handleSelectNavKey('phase17')} className="hover:text-amber-300 transition-colors">المرشد الصوتي 3D Avatar</button></li>
               <li><button onClick={() => handleOpenAiPlanner()} className="hover:text-amber-300 transition-colors">مخطط الرحلات التفاعلي</button></li>
-              <li><button onClick={handleScrollToPrd} className="hover:text-amber-300 transition-colors">وثيقة PRD Phase 1</button></li>
+              <li><button onClick={() => handleSelectNavKey('prd')} className="hover:text-amber-300 transition-colors">وثيقة PRD Phase 1</button></li>
             </ul>
           </div>
 
@@ -457,3 +486,4 @@ export default function App() {
     </div>
   );
 }
+

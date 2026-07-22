@@ -1,5 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  Legend,
+  ComposedChart
+} from 'recharts';
 import {
   Building2,
   MapPin,
@@ -94,6 +112,54 @@ export const MinistryTourismDashboardViewer: React.FC = () => {
   const [tickets, setTickets] = useState<MinistrySupportTicket[]>(demoMinistryTickets);
   const [contentList, setContentList] = useState<MinistryContentItem[]>(demoMinistryContent);
   const [notifications, setNotifications] = useState<MinistryNotification[]>(demoMinistryNotifications);
+
+  // Recharts Interactive Live Simulation State
+  const [selectedAnalyticsRegion, setSelectedAnalyticsRegion] = useState<string>('الكل');
+  const [analyticsTimeframe, setAnalyticsTimeframe] = useState<'monthly' | 'weekly' | 'live'>('monthly');
+  const [liveStreamActive, setLiveStreamActive] = useState<boolean>(true);
+  const [liveDataPoints, setLiveDataPoints] = useState(demoMonthlyTouristFlowData);
+  const [liveTick, setLiveTick] = useState<number>(0);
+
+  // Live simulation tick interval
+  useEffect(() => {
+    if (!liveStreamActive) return;
+    const interval = setInterval(() => {
+      setLiveTick(prev => prev + 1);
+      setLiveDataPoints(prevData => {
+        return prevData.map(item => {
+          const deltaTourists = (Math.random() - 0.48) * 0.12;
+          const deltaOccupancy = (Math.random() - 0.48) * 1.8;
+          const newTourists = Math.max(1.5, Math.min(4.8, +(item.touristsMillions + deltaTourists).toFixed(2)));
+          const newOccupancy = Math.max(62, Math.min(99, +(item.hotelOccupancy + deltaOccupancy).toFixed(1)));
+          return {
+            ...item,
+            touristsMillions: newTourists,
+            hotelOccupancy: newOccupancy,
+            spendBillionSAR: +(newTourists * 1.54).toFixed(1)
+          };
+        });
+      });
+    }, 2800);
+    return () => clearInterval(interval);
+  }, [liveStreamActive]);
+
+  // Recharts Custom Tooltip
+  const CustomChartTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-slate-900/95 border border-emerald-500/50 p-3 rounded-2xl shadow-2xl text-right text-xs dir-rtl">
+          <p className="font-extrabold text-white mb-1.5 border-b border-slate-800 pb-1">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={`item-${index}`} className="flex items-center justify-between gap-3 font-mono my-1" style={{ color: entry.color }}>
+              <span className="font-sans text-slate-300">{entry.name}:</span>
+              <span className="font-black">{entry.value} {entry.unit || ''}</span>
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   // Selected region for modal view in Interactive Map
   const [selectedRegionModal, setSelectedRegionModal] = useState<SaudiRegionDetail | null>(null);
@@ -670,107 +736,347 @@ export const MinistryTourismDashboardViewer: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 3: TOURISM ANALYTICS CENTER */}
+        {/* TAB 3: TOURISM ANALYTICS CENTER WITH RECHARTS */}
         {activeTab === 'analytics' && (
           <div className="space-y-6">
             
-            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6">
-              <div>
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-emerald-400" />
-                  <span>مركز تحليلات السياحة الوطنية المتقدم (Tourism Analytics Center)</span>
-                </h3>
-                <p className="text-xs text-slate-400">رسوم بيانية تفاعلية لحجم السياحة، توزيع الجنسيات، الفئات العمرية وأداء القطاعات</p>
+            {/* Live Analytics Control Bar */}
+            <div className="bg-slate-900/95 border border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-wrap items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full ${liveStreamActive ? 'bg-emerald-400 animate-ping' : 'bg-slate-600'}`} />
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-emerald-400" />
+                    <span>لوحة بيانات إحصائيات تدفق السياح وإشغال الفنادق الحية (Recharts Dashboard)</span>
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400">
+                  رصد دقيق لحظة بلحظة لحجم الزوار الوافدين، نسب الإشغال الفندقي، والإنفاق عبر جميع مناطق المملكة
+                </p>
               </div>
 
-              {/* Analytics Split Grids */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Interactive Controls */}
+              <div className="flex flex-wrap items-center gap-3">
                 
-                {/* Visual Chart 1: Monthly Tourist Flow & Spend (Bar & Line Visual) */}
-                <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-emerald-400" />
-                      <span>تدفق السياح والإنفاق الشهري (ملايين)</span>
-                    </h4>
-                    <span className="text-[10px] text-emerald-400 font-mono">2026 - Q1 to Q3</span>
-                  </div>
+                {/* Live Stream Simulator Toggle */}
+                <button
+                  onClick={() => {
+                    setLiveStreamActive(!liveStreamActive);
+                    triggerToast(liveStreamActive ? 'تم إيقاف البث الحي مؤقتاً' : 'تم تفعيل البث الحي لبيانات Recharts المباشرة');
+                  }}
+                  className={`px-4 py-2 rounded-2xl text-xs font-black flex items-center gap-2 transition-all border ${
+                    liveStreamActive
+                      ? 'bg-emerald-950 text-emerald-300 border-emerald-500/50 shadow-lg shadow-emerald-950/60'
+                      : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                  }`}
+                >
+                  <Activity className={`w-4 h-4 ${liveStreamActive ? 'text-emerald-400 animate-pulse' : ''}`} />
+                  <span>{liveStreamActive ? `بث حي نَشِط (تحديث #${liveTick})` : 'تشغيل البث الحي'}</span>
+                </button>
 
-                  <div className="space-y-3 pt-2">
-                    {demoMonthlyTouristFlowData.map((item, idx) => (
-                      <div key={idx} className="space-y-1 text-xs">
-                        <div className="flex justify-between text-slate-300">
-                          <span className="font-bold">{item.month}</span>
-                          <span className="font-mono text-emerald-400">{item.touristsMillions}M سائح • {item.spendBillionSAR}B SAR</span>
-                        </div>
-                        <div className="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-800">
-                          <div
-                            className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${(item.touristsMillions / 3.5) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                {/* Region Filter Dropdown */}
+                <select
+                  value={selectedAnalyticsRegion}
+                  onChange={(e) => setSelectedAnalyticsRegion(e.target.value)}
+                  className="bg-slate-950 text-slate-200 border border-slate-800 rounded-2xl px-3 py-2 text-xs font-bold focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="الكل">جميع مناطق المملكة</option>
+                  <option value="العلا والمدينة">العلا والمدينة المنورة</option>
+                  <option value="الرياض والدرعية">الرياض والدرعية</option>
+                  <option value="جدة ومكة">جدة ومكة المكرمة</option>
+                  <option value="عسير والجنوب">عسير والجنوب</option>
+                  <option value="تبوك ونيوم">تبوك ونيوم</option>
+                  <option value="الشرقية والأحساء">الشرقية والأحساء</option>
+                </select>
 
-                {/* Visual Chart 2: Nationality Breakdown (Pie Chart Visual) */}
-                <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                      <PieChart className="w-4 h-4 text-amber-400" />
-                      <span>توزيع السياح حسب الجنسية والأسواق العالمية</span>
-                    </h4>
-                    <span className="text-[10px] text-amber-300 font-mono">Global Markets</span>
-                  </div>
-
-                  <div className="space-y-3 pt-2">
-                    {demoNationalityBreakdown.map((nat, i) => (
-                      <div key={i} className="space-y-1 text-xs">
-                        <div className="flex justify-between text-slate-300">
-                          <span className="font-bold">{nat.country}</span>
-                          <span className="font-mono text-amber-300">{nat.percentage}% ({nat.count})</span>
-                        </div>
-                        <div className="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-800">
-                          <div
-                            className="bg-gradient-to-r from-amber-500 to-amber-600 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${nat.percentage * 2.5}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                {/* Timeframe Selector */}
+                <div className="flex items-center bg-slate-950 p-1 rounded-2xl border border-slate-800 text-xs font-bold">
+                  <button
+                    onClick={() => setAnalyticsTimeframe('monthly')}
+                    className={`px-3 py-1.5 rounded-xl transition-all ${
+                      analyticsTimeframe === 'monthly' ? 'bg-[#047857] text-white font-black' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    شهري
+                  </button>
+                  <button
+                    onClick={() => setAnalyticsTimeframe('weekly')}
+                    className={`px-3 py-1.5 rounded-xl transition-all ${
+                      analyticsTimeframe === 'weekly' ? 'bg-[#047857] text-white font-black' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    أسبوعي
+                  </button>
+                  <button
+                    onClick={() => setAnalyticsTimeframe('live')}
+                    className={`px-3 py-1.5 rounded-xl transition-all ${
+                      analyticsTimeframe === 'live' ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    لحظي ⚡
+                  </button>
                 </div>
 
               </div>
+            </div>
 
-              {/* Sector Performance Rating Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs pt-4 border-t border-slate-800">
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 font-bold block">أداء الفنادق والمنتجعات</span>
-                  <div className="text-lg font-black text-amber-300 font-mono">4.8 / 5.0 ★</div>
-                  <p className="text-[10px] text-emerald-400">92% رضا على الخدمات الفاخرة</p>
+            {/* Top Live KPI Summary Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-slate-900/90 border border-emerald-500/30 rounded-3xl p-5 shadow-xl space-y-2 relative overflow-hidden">
+                <div className="flex items-center justify-between text-xs text-emerald-400 font-bold">
+                  <span>تدفق السياح الحي</span>
+                  <Users className="w-4 h-4 text-emerald-400" />
                 </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 font-bold block">أداء المطاعم والمقاهي</span>
-                  <div className="text-lg font-black text-white font-mono">4.7 / 5.0 ★</div>
-                  <p className="text-[10px] text-emerald-400">إقبال على المطبخ السعودي التراثي</p>
+                <div className="text-3xl font-black text-white font-mono">
+                  {((liveDataPoints.reduce((acc, curr) => acc + curr.touristsMillions, 0) / liveDataPoints.length) * 1.2).toFixed(2)}M
                 </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 font-bold block">أداء المهرجانات والفعاليات</span>
-                  <div className="text-lg font-black text-amber-300 font-mono">4.9 / 5.0 ★</div>
-                  <p className="text-[10px] text-emerald-400">حجوزات قياسية بموسم الرياض والعلا</p>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 font-bold block">أداء الأنشطة والإرشاد</span>
-                  <div className="text-lg font-black text-white font-mono">4.9 / 5.0 ★</div>
-                  <p className="text-[10px] text-emerald-400">تميز المرشدين السياحيين السعوديين</p>
+                <div className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>▲ +16.8% مقارنة بالدورة الماضية</span>
                 </div>
               </div>
 
+              <div className="bg-slate-900/90 border border-amber-500/30 rounded-3xl p-5 shadow-xl space-y-2 relative overflow-hidden">
+                <div className="flex items-center justify-between text-xs text-amber-400 font-bold">
+                  <span>معدل إشغال الفنادق العام</span>
+                  <Building2 className="w-4 h-4 text-amber-400" />
+                </div>
+                <div className="text-3xl font-black text-amber-300 font-mono">
+                  {(liveDataPoints.reduce((acc, curr) => acc + curr.hotelOccupancy, 0) / liveDataPoints.length).toFixed(1)}%
+                </div>
+                <div className="text-[11px] text-amber-300 font-bold">
+                  أعلى إشغال: العلا (94%) ونيوم (88%)
+                </div>
+              </div>
+
+              <div className="bg-slate-900/90 border border-cyan-500/30 rounded-3xl p-5 shadow-xl space-y-2 relative overflow-hidden">
+                <div className="flex items-center justify-between text-xs text-cyan-400 font-bold">
+                  <span>إجمالي إنفاق السياح المقدر</span>
+                  <DollarSign className="w-4 h-4 text-cyan-400" />
+                </div>
+                <div className="text-3xl font-black text-cyan-300 font-mono">
+                  {(liveDataPoints.reduce((acc, curr) => acc + curr.spendBillionSAR, 0)).toFixed(1)}B SAR
+                </div>
+                <div className="text-[11px] text-slate-300 font-medium">
+                  متوسط 1,250 ريال / زائر يومياً
+                </div>
+              </div>
+
+              <div className="bg-slate-900/90 border border-purple-500/30 rounded-3xl p-5 shadow-xl space-y-2 relative overflow-hidden">
+                <div className="flex items-center justify-between text-xs text-purple-400 font-bold">
+                  <span>مؤشر جودة تجربة الزائر</span>
+                  <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                </div>
+                <div className="text-3xl font-black text-white font-mono">
+                  94.8%
+                </div>
+                <div className="text-[11px] text-emerald-400 font-bold">
+                  ممتاز • معتمد برؤية 2030
+                </div>
+              </div>
+            </div>
+
+            {/* Primary Recharts Section: Tourist Flow & Hotel Occupancy Dual-Axis Chart */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div>
+                  <h4 className="text-base font-bold text-white flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-emerald-400" />
+                    <span>رسم بياني حي لمسار تدفق السياح ومعدل إشغال الفنادق (Composed Recharts Area & Line)</span>
+                  </h4>
+                  <p className="text-xs text-slate-400">
+                    يعرض المحور الأيسر أعداد السياح (بالمليون) والمحور الأيمن يوضح نسبة الإشغال الفندقي (%)
+                  </p>
+                </div>
+                <div className="flex items-center gap-4 text-xs font-mono">
+                  <span className="flex items-center gap-1.5 text-emerald-400">
+                    <span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" /> تدفق السياح (M)
+                  </span>
+                  <span className="flex items-center gap-1.5 text-amber-400">
+                    <span className="w-3 h-3 rounded-full bg-amber-400 inline-block" /> إشغال الفنادق (%)
+                  </span>
+                  <span className="flex items-center gap-1.5 text-cyan-400">
+                    <span className="w-3 h-1 bg-cyan-400 inline-block" /> الإنفاق (B SAR)
+                  </span>
+                </div>
+              </div>
+
+              {/* Recharts Container */}
+              <div className="w-full h-80 pt-2 dir-ltr">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={liveDataPoints} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="touristGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.6}/>
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.02}/>
+                      </linearGradient>
+                      <linearGradient id="spendGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0}/>
+                      </linearGradient>
+                    </defs>
+
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                    <XAxis dataKey="month" stroke="#94a3b8" tick={{ fill: '#cbd5e1', fontSize: 12 }} />
+                    <YAxis 
+                      yAxisId="left" 
+                      orientation="left" 
+                      stroke="#10b981" 
+                      tick={{ fill: '#10b981', fontSize: 11 }}
+                      unit="M"
+                    />
+                    <YAxis 
+                      yAxisId="right" 
+                      orientation="right" 
+                      stroke="#f59e0b" 
+                      domain={[50, 100]}
+                      tick={{ fill: '#f59e0b', fontSize: 11 }}
+                      unit="%"
+                    />
+
+                    <RechartsTooltip content={<CustomChartTooltip />} />
+                    <Legend wrapperStyle={{ paddingTop: 10, fontSize: 12 }} />
+
+                    <Area 
+                      yAxisId="left"
+                      type="monotone" 
+                      dataKey="touristsMillions" 
+                      name="تدفق السياح (مليون سائح)" 
+                      fill="url(#touristGradient)" 
+                      stroke="#10b981" 
+                      strokeWidth={2.5}
+                      unit="M"
+                    />
+
+                    <Line 
+                      yAxisId="right"
+                      type="monotone" 
+                      dataKey="hotelOccupancy" 
+                      name="نسبة إشغال الفنادق (%)" 
+                      stroke="#f59e0b" 
+                      strokeWidth={3.5}
+                      dot={{ r: 5, fill: '#f59e0b', strokeWidth: 2, stroke: '#1e293b' }}
+                      activeDot={{ r: 8, fill: '#f59e0b' }}
+                      unit="%"
+                    />
+
+                    <Line 
+                      yAxisId="left"
+                      type="monotone" 
+                      dataKey="spendBillionSAR" 
+                      name="إنفاق السياح (مليار ريال)" 
+                      stroke="#06b6d4" 
+                      strokeWidth={2}
+                      strokeDasharray="4 4"
+                      dot={{ r: 3, fill: '#06b6d4' }}
+                      unit="B SAR"
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Split Recharts Grid: Regional Occupancy Bar Chart + Global Nationality Doughnut */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Regional Hotel Occupancy Bar Chart (7 Cols) */}
+              <div className="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-amber-400" />
+                    <span>نسب إشغال الفنادق ومتوسط الإقامة حسب المنطقة (Recharts Bar Chart)</span>
+                  </h4>
+                  <span className="text-[10px] text-amber-300 font-mono">موزعة جغرافياً</span>
+                </div>
+
+                <div className="w-full h-72 pt-2 dir-ltr">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={regions} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                      <XAxis dataKey="nameAr" stroke="#94a3b8" tick={{ fill: '#cbd5e1', fontSize: 10 }} interval={0} angle={-15} textAnchor="end" />
+                      <YAxis stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 11 }} domain={[0, 100]} unit="%" />
+                      <RechartsTooltip content={<CustomChartTooltip />} />
+                      <Legend wrapperStyle={{ fontSize: 11 }} />
+                      
+                      <Bar dataKey="hotelOccupancy" name="معدل إشغال الفنادق (%)" fill="#10b981" radius={[6, 6, 0, 0]} unit="%" />
+                      <Bar dataKey="avgStayDays" name="متوسط الإقامة (أيام)" fill="#f59e0b" radius={[6, 6, 0, 0]} unit=" أيام" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Global Markets Doughnut Chart (5 Cols) */}
+              <div className="lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <PieChart className="w-4 h-4 text-emerald-400" />
+                    <span>توزيع الجنسيات والأسواق العالمية (Recharts Pie Chart)</span>
+                  </h4>
+                  <span className="text-[10px] text-emerald-400 font-mono">Global Markets</span>
+                </div>
+
+                <div className="w-full h-72 flex items-center justify-center dir-ltr">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPieChart>
+                      <Pie
+                        data={demoNationalityBreakdown}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={90}
+                        paddingAngle={5}
+                        dataKey="percentage"
+                        nameKey="country"
+                        label={({ country, percentage }) => `${country}: ${percentage}%`}
+                      >
+                        {demoNationalityBreakdown.map((entry, index) => {
+                          const colors = ['#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ec4899'];
+                          return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} stroke="#0f172a" strokeWidth={2} />;
+                        })}
+                      </Pie>
+                      <RechartsTooltip content={<CustomChartTooltip />} />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Destination Occupancy Density Breakdown */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                <Globe className="w-4 h-4 text-emerald-400" />
+                <span>جدول التغطية الفندقية الحية وأداء المنتجعات بالوجهات الوطنية</span>
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                {regions.map((reg) => (
+                  <div key={reg.id} className="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-white truncate">{reg.nameAr}</span>
+                      <span className="text-[10px] font-mono text-emerald-400 font-bold">{reg.growthRate}</span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px] text-slate-400">
+                        <span>نسبة الإشغال:</span>
+                        <span className="font-mono font-bold text-amber-300">{reg.hotelOccupancy}%</span>
+                      </div>
+                      <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-gradient-to-r from-amber-500 to-emerald-400 h-full rounded-full"
+                          style={{ width: `${reg.hotelOccupancy}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-900 flex justify-between font-mono">
+                      <span>{reg.touristsCount.toLocaleString()} سائح</span>
+                      <span className="text-emerald-400 font-bold">{reg.avgSpendSAR} SAR</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
           </div>
