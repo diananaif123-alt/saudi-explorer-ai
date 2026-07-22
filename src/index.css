@@ -1,0 +1,85 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Cairo:wght@400;600;700;800;900&display=swap');
+
+:root {
+  font-family: 'Tajawal', 'IBM Plex Sans Arabic', 'Cairo', system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+
+body {
+  direction: rtl;
+  background-color: #fcfbf7;
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1ebd8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #059669;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #047857;
+}
+
+/* Saudi Luxury Metallic & Emerald Accents */
+.bg-saudi-emerald {
+  background-color: #047857;
+}
+
+.text-saudi-gold {
+  color: #d97706;
+}
+
+.bg-saudi-gold {
+  background-color: #f59e0b;
+}
+
+.border-saudi-gold {
+  border-color: #f59e0b;
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #047857 0%, #d97706 60%, #b45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.emerald-emerald-gradient-text {
+  background: linear-gradient(135deg, #065f46 0%, #059669 50%, #0d9488 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Light Mode Glassmorphism & Cards for Phase 20 */
+.saudi-light-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(4, 120, 87, 0.12);
+  box-shadow: 0 10px 30px -10px rgba(4, 120, 87, 0.08);
+}
+
+.saudi-light-card:hover {
+  border-color: rgba(4, 120, 87, 0.3);
+  box-shadow: 0 20px 40px -15px rgba(4, 120, 87, 0.15);
+}
+
+.emerald-glass {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(4, 120, 87, 0.15);
+}
+
+
